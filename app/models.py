@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import Integer, String, Column, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from .db import Base
 
@@ -15,6 +16,7 @@ class User(Base):
     role = Column(String, default="user")
 
     picks = relationship("Pick", back_populates="user")
+    jokers = relationship("Joker", back_populates="user")
 
 
 class Fixture(Base):
@@ -44,3 +46,26 @@ class OddsMapping(Base):
     id = Column(Integer, primary_key=True)
     odds = Column(String, nullable=False, unique=True)
     points = Column(Integer, nullable=False)
+
+
+class Result(Base):
+    __tablename__ = "results"
+
+    id = Column(Integer, primary_key=True)
+    fixture_id = Column(Integer, ForeignKey("fixtures.id"), unique=True)
+    home_score = Column(Integer, nullable=False)
+    away_score = Column(Integer, nullable=False)
+
+    fixture = relationship("Fixture")
+
+
+class Joker(Base):
+    __tablename__ = "jokers"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    pick_id = Column(Integer, ForeignKey("picks.id"))
+    used_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="jokers")
+    pick = relationship("Pick")
