@@ -5,11 +5,13 @@ from sqlalchemy.orm import Session
 
 from .db import Base, engine, get_db
 from .odds import seed_default_mapping, get_points_for_odds
+from .routers.picks import router as picks_router
 
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FootyComp")
+app.include_router(picks_router)
 
 
 @app.on_event("startup")
