@@ -39,6 +39,10 @@ Each service runs in its own Docker container and is deployed as a Render servic
 - FastAPI application exposing REST endpoints:
   - Player management and authentication
   - Weekly team selection with optional joker flag
+  - Weekly coupon retrieval
+    - Coupons are grouped by `season` and `week`; week numbers increment sequentially and reset to 1 each new season
+  - Pick submission via `POST /users/{user_id}/picks` parsing tokens like `1H 2A`,
+    returning 400 for invalid formats or unknown fixtures
   - Points allocation boundary management
   - Odds provider selection
   - League table retrieval
