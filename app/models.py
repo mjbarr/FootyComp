@@ -23,6 +23,8 @@ class Fixture(Base):
     __tablename__ = "fixtures"
 
     id = Column(Integer, primary_key=True)
+    season = Column(Integer, default=1, nullable=False)
+    week = Column(Integer, default=1, nullable=False)
     home_team = Column(String, nullable=False)
     away_team = Column(String, nullable=False)
     odds = Column(String, nullable=False)
@@ -34,6 +36,7 @@ class Pick(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     fixture_id = Column(Integer, ForeignKey("fixtures.id"))
+    selection = Column(String, nullable=False)
     joker = Column(Integer, default=0)  # 0=none,1=first joker,2=second
 
     user = relationship("User", back_populates="picks")

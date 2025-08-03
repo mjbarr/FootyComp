@@ -46,7 +46,7 @@ def test_get_user_picks():
     db.commit()
     user_id = user.id
     fixture_id = fixture.id
-    pick = Pick(user_id=user_id, fixture_id=fixture_id, joker=0)
+    pick = Pick(user_id=user_id, fixture_id=fixture_id, selection="H", joker=0)
     db.add(pick)
     db.commit()
     db.close()
@@ -58,3 +58,44 @@ def test_get_user_picks():
     assert isinstance(data, list)
     assert len(data) == 1
     assert data[0]["fixture_id"] == fixture_id
+    assert data[0]["selection"] == "H"
+
+
+def test_submit_picks_success():
+    db = SessionLocal()
+    user = User(email="bar@example.com", hashed_password="x")
+    fixture1 = Fixture(home_team="A", away_team="B", odds="1/1")
+    fixture2 = Fixture(home_team="C", away_team="D", odds="2/1")
+    db.add_all([user, fixture1, fixture2])
+    db.commit()
+    user_id = user.id
+    f1_id, f2_id = fixture1.id, fixture2.id
+    db.close()
+
+    client = TestClient(app)
+    resp = client.post(
+        f"/users/{user_id}/picks",
+        json={"message": f"{f1_id}H {f2_id}A"},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert len(data) == 2
+    assert {p["selection"] for p in data} == {"H", "A"}
+
+
+def test_submit_picks_invalid_format():
+    db = SessionLocal()
+    user = User(email="baz@example.com", hashed_password="x")
+    fixture = Fixture(home_team="A", away_team="B", odds="1/1")
+    db.add_all([user, fixture])
+    db.commit()
+    user_id = user.id
+    db.close()
+
+    client = TestClient(app)
+    resp = client.post(
+        f"/users/{user_id}/picks",
+        json={"message": "1X"},
+    )
+    assert resp.status_code == 400
+    assert "Invalid pick format" in resp.json()["detail"]

@@ -27,11 +27,27 @@ def ingest_fixtures(db: Session, fixtures: Iterable[dict]) -> None:
         home = data["home_team"]
         away = data["away_team"]
         odds = data["odds"]
+        season = data.get("season", 1)
+        week = data.get("week", 1)
         exists = (
             db.query(Fixture)
-            .filter_by(home_team=home, away_team=away, odds=odds)
+            .filter_by(
+                home_team=home,
+                away_team=away,
+                odds=odds,
+                season=season,
+                week=week,
+            )
             .first()
         )
         if not exists:
-            db.add(Fixture(home_team=home, away_team=away, odds=odds))
+            db.add(
+                Fixture(
+                    home_team=home,
+                    away_team=away,
+                    odds=odds,
+                    season=season,
+                    week=week,
+                )
+            )
     db.commit()
