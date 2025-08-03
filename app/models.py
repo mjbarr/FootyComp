@@ -23,6 +23,8 @@ class Fixture(Base):
     __tablename__ = "fixtures"
 
     id = Column(Integer, primary_key=True)
+    season = Column(Integer, default=1, nullable=False)
+    week = Column(Integer, default=1, nullable=False)
     home_team = Column(String, nullable=False)
     away_team = Column(String, nullable=False)
     odds = Column(String, nullable=False)
